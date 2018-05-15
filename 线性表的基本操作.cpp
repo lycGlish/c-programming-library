@@ -95,7 +95,8 @@ int Get_Sqlist(SqList *L)
 
 void Ex_Sqlist(SqList *L)
 {
-	int i, temp;
+	int i;
+	ElemType temp;
 	for (i = 0; i < L->length / 2; i++) 
 	{
 		temp = L->elem[i];
@@ -158,6 +159,36 @@ void Check_Odevity(SqList *L)
 	}
 }//奇数放左，偶数放右
 
+void Birdirectional_Bubble(SqList *L)
+{
+	int i, shift, temp, left = 0, right = L->length - 1;
+	while (left < right) 
+	{
+		for (i = left; i < right; i++)
+		{
+			if (L->elem[i] > L->elem[i + 1])
+			{
+				temp = L->elem[i];
+				L->elem[i] = L->elem[i + 1];
+				L->elem[i + 1] = temp;
+				shift = i;
+			}
+		}
+		right = shift;
+		for (i = right - 1; i >= left; i--)
+		{
+			if (L->elem[i] > L->elem[i + 1])
+			{
+				temp = L->elem[i];
+				L->elem[i] = L->elem[i + 1];
+				L->elem[i + 1] = temp;
+				shift = i + 1;
+			}
+		}
+		left = shift;
+	}
+}//双向冒泡排序
+
 void next() 
 {
 	printf("请选择下一个操作：");
@@ -174,7 +205,8 @@ int main()
 	puts("==========================线性表的操作============================");
 	puts("\n");
 	printf("1.插入值       2.删除值        3.查找元素      4.读取线性表长度.\n");
-	printf("5.输出线性表   6.清空线性表    7.特殊操作      99.结束程序.\n");
+	printf("5.输出线性表   6.清空线性表    7.特殊操作      8.排序操作.\n");
+	printf("99.结束程序.\n");
 	printf("请输入要选择的操作：");
 	while (scanf("%d", &temp))
 	{
@@ -221,8 +253,7 @@ int main()
 		case 7:
 			puts("====================线性表的特殊操作=======================");
 			puts("\n");
-			printf("1.线性表就地逆转   2.线性表的递增判断   3.冒泡排序.\n");
-			printf("4.奇偶分配.\n");
+			printf("1.线性表就地逆转   2.线性表的递增判断   3.奇偶分配.\n");
 			printf("请输入你要进行的特殊操作：");
 			scanf("%d", &temp);
 			switch (temp) 
@@ -237,13 +268,31 @@ int main()
 				next();
 				break;
 			case 3:
+				Check_Odevity(L);
+				printf("奇偶左右已分配好...\n");
+				next();
+				break;
+			default:
+				printf("没有这个操作，请重新输入\n");
+				break;
+			}
+			break;
+		case 8:
+			puts("====================线性表的排序操作=======================");
+			puts("\n");
+			printf("1.冒泡排序   2.双向冒泡排序.\n");
+			printf("请输入你要进行的特殊操作：");
+			scanf("%d", &temp);
+			switch (temp)
+			{
+			case 1:
 				Bubb_Sqlist(L);
 				printf("冒泡排序成功...\n");
 				next();
 				break;
-			case 4:
-				Check_Odevity(L);
-				printf("奇偶左右已分配好...\n");
+			case 2:
+				Birdirectional_Bubble(L);
+				printf("双向冒泡排序成功...\n");
 				next();
 				break;
 			default:

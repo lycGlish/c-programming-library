@@ -123,10 +123,10 @@ void Check_Increase(SqList *L)
 void Bubb_Sqlist(SqList *L)	
 {
 	int i, j, temp, flag = 1;
-	for (i = 1; i < L->length&&flag==1; i++)
+	for (i = 0; (i < L->length-1)&&flag==1; i++)
 	{
 		flag = 0;
-		for (j = 0; j < L->length - i; j++)
+		for (j = 0; j < L->length-1-i; j++)
 		{
 			if (L->elem[j] > L->elem[j + 1])
 			{
@@ -142,16 +142,16 @@ void Bubb_Sqlist(SqList *L)
 void Check_Odevity(SqList *L)
 {
 	int i = 0, temp, j;
-	while(i<=L->length)
+	while(i<=L->length-1)
 	{
 		if (L->elem[i] % 2 == 0)
 		{
 			temp = L->elem[i];
-			for (j = i; j < L->length; j++)
+			for (j = i; j < L->length-1; j++)
 			{
 				L->elem[j] = L->elem[j + 1];
 			}
-			L->elem[L->length] = temp;
+			L->elem[L->length-1] = temp;
 			continue;
 		}
 		i++;

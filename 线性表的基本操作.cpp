@@ -1,310 +1,172 @@
 #include<stdio.h>
 #include<stdlib.h>
+
 #define TRUE 1
-#define ERROR 0
-#define MAX_LIST 100
+#define ERROR -1
+#define STACK_INIT_SIZE 100
+#define STACKINCREMENT 10
 #define OVERFLOW -1
-#define NOFOUND -1
+#define VOID 0
 
-typedef int ElemType;
+typedef char Elemtype;
 
-typedef struct sqlist 
+typedef struct
 {
-	ElemType *elem;
-	int length;
-	int listsize;
-} SqList;
+	Elemtype *base;
+	Elemtype *top;
+	int stacksize;
+}SqStack;
 
-int Init_Sqlist(SqList *L, int n) 
+int Init_stack(SqStack *S) 
 {
-	int i, iTemp;
-	printf("初始化...\n");
-	L->elem = (ElemType*)malloc(MAX_LIST * sizeof(ElemType));
-	if (!L->elem)
+	S->base = (Elemtype *)malloc(STACK_INIT_SIZE * sizeof(Elemtype));
+	if (!S->base)
+	{
+		printf("分配内存失败...\n");
 		return ERROR;
-	L->length = 0;
-	L->listsize = MAX_LIST;
-	for (i = 0; i < n; i++)
-	{
-		printf("请输入第%d个数\n", i + 1);
-		scanf("%d", &iTemp);
-		L->elem[L->length] = iTemp;
-		++L->length;
 	}
-	printf("初始化成功...\n");
-	return TRUE;
-}//初始化线性表
-
-int Insert_Sqlist(SqList *L, int index, ElemType x)
-{
-	int i;
-	for (i = L->length; i >= index; i--) 
-	{
-		L->elem[i + 1] = L->elem[i];
-	}
-	L->elem[index] = x;
-	L->length++;
-	return TRUE;
-}//将数据插入线性表
-
-int Delete_Sqlist(SqList *L, int index) 
-{
-	int i;
-	for (i = L->length; i>index; i--) 
-	{
-		L->elem[i - 1] = L->elem[i];
-	}
-	L->length--;
-	return TRUE;
-}//删除线性表中数据
-
-int SearchList(SqList *L, ElemType x)
-{
-	for (int i = 0; i < L->length; i++)
-	{
-		if (x == L->elem[i])
-			return i;
-	}
-	return NOFOUND;
-}//在线性表中寻找元素
-
-void printf_Sqlist(SqList *L) 
-{
-	int i;
-	if (L->length == 0)
-		printf("线性表为空! \n");
 	else 
 	{
-		for (i = 0; i<L->length; i++) 
+		S->top = S->base;
+		S->stacksize = STACK_INIT_SIZE;
+		printf("栈初始化成功...\n");
+	}
+	return TRUE;
+}//初始化栈
+
+int Push_stack(SqStack *S,Elemtype e) 
+{
+	if (S->top - S->base > S->stacksize)
+	{
+		S->base = (Elemtype *)realloc(S->base, (S->stacksize + STACKINCREMENT * sizeof(Elemtype)));
+		if (!S->base) 
 		{
-			printf("%d \t", L->elem[i]);
+			printf("溢出...\n");
+			return OVERFLOW;
 		}
+		S->top = S->base + S->stacksize;
+		S->stacksize += STACKINCREMENT;
 	}
-	printf("\n");
-}//输出线性表
+	*S->top++ = e;
+	return TRUE;
+}//将e压入栈
 
-void Clear_Sqlist(SqList *L) 
+int Pop_stack(SqStack *S,Elemtype *e)
 {
-	L->length = 0;
-}//清空线性表
+	*e = *(S->top - 1);
+	S->top--;
+	return TRUE;
+}//将栈顶元素弹出
 
-int Get_Sqlist(SqList *L)
+void Print_stack(SqStack S) 
 {
-	return L->length;
-}//获取线性表长度
-
-void Ex_Sqlist(SqList *L)
-{
-	int i;
-	ElemType temp;
-	for (i = 0; i < L->length / 2; i++) 
+	Elemtype *p;
+	if (S.top == S.base) 
 	{
-		temp = L->elem[i];
-		L->elem[i] = L->elem[L->length - i - 1];
-		L->elem[L->length - i - 1] = temp;
+		printf("栈为空...\n");
 	}
-}//线性表的就地逆转
-
-void Check_Increase(SqList *L)
-{
-	int i;
-	for (i = 0; i < L->length-1; i++) 
-	{
-		if (L->elem[i] > L->elem[i + 1]) 
+	else {
+		printf("输出栈的内容... \n");
+		p = S.top;
+		while (p != S.base)
 		{
-			printf("线性表不为递增./n");
+			--p;
+			printf("%d ", *p);
+		}
+		printf("\n");
+	}
+}//输出所有栈元素
+
+int Put_stack(SqStack *S,Elemtype *out_x) 
+{
+	Elemtype *temp = S->top;
+	if (S->top == S->base) 
+	{
+		printf("栈为空...\n");
+		return ERROR;
+	}
+	temp--;
+	*out_x = *temp;
+	return TRUE;
+}//输出栈顶元素
+
+void Judge_stack(SqStack *S,Elemtype *text) 
+{
+	int i, j;
+	Elemtype temp, *x, index;
+	for (i = 0; text[i] != '@'; i++) 
+	{
+		index = text[i];
+		Push_stack(S, index);
+	}
+	for (j = i-1; j >= 0; j--)
+	{
+		temp = Pop_stack(S,x);
+		if (text[j] != temp)
+		{
+			printf("不是回文\n");
 			break;
 		}
 	}
-	if (i == L->length-1) {
-		printf("线性表为递增.\n");
-	}
-}//判断线性表中数据特性
-
-void Bubb_Sqlist(SqList *L)	
-{
-	int i, j, temp, flag = 1;
-	for (i = 0; (i < L->length-1)&&flag==1; i++)
-	{
-		flag = 0;
-		for (j = 0; j < L->length-1-i; j++)
-		{
-			if (L->elem[j] > L->elem[j + 1])
-			{
-				flag = 1;
-				temp = L->elem[j];
-				L->elem[j] = L->elem[j + 1];
-				L->elem[j + 1] = temp;
-			}
-		}
-	}
-}//冒泡排序
-
-void Check_Odevity(SqList *L)
-{
-	int i = 0, temp, j;
-	while(i<=L->length-1)
-	{
-		if (L->elem[i] % 2 == 0)
-		{
-			temp = L->elem[i];
-			for (j = i; j < L->length-1; j++)
-			{
-				L->elem[j] = L->elem[j + 1];
-			}
-			L->elem[L->length-1] = temp;
-			continue;
-		}
-		i++;
-	}
-}//奇数放左，偶数放右
-
-void Birdirectional_Bubble(SqList *L)
-{
-	int i, shift, temp, left = 0, right = L->length - 1;
-	while (left < right) 
-	{
-		for (i = left; i < right; i++)
-		{
-			if (L->elem[i] > L->elem[i + 1])
-			{
-				temp = L->elem[i];
-				L->elem[i] = L->elem[i + 1];
-				L->elem[i + 1] = temp;
-				shift = i;
-			}
-		}
-		right = shift;
-		for (i = right - 1; i >= left; i--)
-		{
-			if (L->elem[i] > L->elem[i + 1])
-			{
-				temp = L->elem[i];
-				L->elem[i] = L->elem[i + 1];
-				L->elem[i + 1] = temp;
-				shift = i + 1;
-			}
-		}
-		left = shift;
-	}
-}//双向冒泡排序
+	if (j == -1)
+		printf("是回文");
+}//判断输入是否为回文
 
 void next() 
 {
-	printf("请选择下一个操作：");
-	return;
+	printf("请选择下一步的操作：");
 }
 
-int main()
-{
-	int temp, insert_x, delete_it, search, search_it, n;
-	printf("请输入你想创建的线性表大小：\n");
-	scanf("%d", &n);
-	SqList *L = (SqList *)malloc(sizeof(SqList));
-	Init_Sqlist(L, n);
-	puts("==========================线性表的操作============================");
+int main() {
+	int temp;
+	Elemtype insert_x, out_x, *delete_it;
+	SqStack *S = (SqStack *)malloc(sizeof(SqStack));
+	Init_stack(S);
+	puts("=======================顺序栈的运算=======================");
 	puts("\n");
-	printf("1.插入值       2.删除值        3.查找元素      4.读取线性表长度.\n");
-	printf("5.输出线性表   6.清空线性表    7.特殊操作      8.排序操作.\n");
-	printf("99.结束程序.\n");
-	printf("请输入要选择的操作：");
-	while (scanf("%d", &temp))
+	printf("1.压入值     2.弹出值     3.输出栈     4.输出栈顶元素\n");
+	printf("5.回文判断   99.退出程序\n");
+	printf("请输入要进行的操作:");
+	while (scanf("%d",&temp))
 	{
-		switch (temp)
+		switch (temp) 
 		{
 		case 1:
-			printf("请输入你要插入的位置：");
-			scanf("%d", &temp);
-			printf("请输入你要插入的值：");
+			printf("请输入需要入栈的值：");
 			scanf("%d", &insert_x);
-			Insert_Sqlist(L, temp, insert_x);
+			Push_stack(S, insert_x);
+			printf("入栈成功...\n");
 			next();
 			break;
 		case 2:
-			printf("请输入你要删除值的位置：");
-			scanf("%d", &delete_it);
-			Delete_Sqlist(L, delete_it);
+			Pop_stack(S, delete_it);
+			printf("出栈成功，弹出值为：%d\n", delete_it);
 			next();
 			break;
 		case 3:
-			printf("请输入你要查找的元素");
-			scanf("%d", &search);
-			search_it = SearchList(L, search);
-			if (search_it == NOFOUND)
-				printf("线性表中没有这个元素!\n");
-			else
-				printf("%d在线性表第%d个位置.\n", search, search_it + 1);
+			Print_stack(*S);
 			next();
 			break;
 		case 4:
-			printf("线性表长度为：%d\n", Get_Sqlist(L));
+			if (!Put_stack(S, &out_x)) 
+			{
+				printf("栈顶元素为：%d\n", out_x);
+			}
 			next();
 			break;
 		case 5:
-			printf_Sqlist(L);
-			puts("");
+			Elemtype text[STACKINCREMENT];
+			printf("请输入文字...\n");
+			getchar();
+			gets_s(text);//仅读取99个字符，可更改大小
+			Judge_stack(S, text);
 			next();
-			break;
-		case 6:
-			Clear_Sqlist(L);
-			printf("线性表已清空.\n");
-			next();
-			break;
-		case 7:
-			puts("====================线性表的特殊操作=======================");
-			puts("\n");
-			printf("1.线性表就地逆转   2.线性表的递增判断   3.奇偶分配.\n");
-			printf("请输入你要进行的特殊操作：");
-			scanf("%d", &temp);
-			switch (temp) 
-			{
-			case 1:
-				Ex_Sqlist(L);
-				printf("线性表就地逆转成功.\n");
-				next();
-				break;
-			case 2:
-				Check_Increase(L);
-				next();
-				break;
-			case 3:
-				Check_Odevity(L);
-				printf("奇偶左右已分配好...\n");
-				next();
-				break;
-			default:
-				printf("没有这个操作，请重新输入\n");
-				break;
-			}
-			break;
-		case 8:
-			puts("====================线性表的排序操作=======================");
-			puts("\n");
-			printf("1.冒泡排序   2.双向冒泡排序.\n");
-			printf("请输入你要进行的特殊操作：");
-			scanf("%d", &temp);
-			switch (temp)
-			{
-			case 1:
-				Bubb_Sqlist(L);
-				printf("冒泡排序成功...\n");
-				next();
-				break;
-			case 2:
-				Birdirectional_Bubble(L);
-				printf("双向冒泡排序成功...\n");
-				next();
-				break;
-			default:
-				printf("没有这个操作，请重新输入\n");
-				break;
-			}
 			break;
 		case 99:
-			free(L);
+			free(S);
 			return 0;
 		default:
-			printf("没有这个操作，请重新输入\n");
+			printf("没有这个操作，请重新输入.\n");
 			break;
 		}
 	}

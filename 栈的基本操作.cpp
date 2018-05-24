@@ -8,7 +8,7 @@
 #define OVERFLOW -1
 #define VOID 0
 
-typedef int Elemtype;
+typedef char Elemtype;
 
 typedef struct
 {
@@ -79,7 +79,7 @@ void Print_stack(SqStack S)
 
 int Put_stack(SqStack *S,Elemtype *out_x) 
 {
-	Elemtype *temp = S->top;
+	Elemtype  *temp = S->top;
 	if (S->top == S->base) 
 	{
 		printf("栈为空...\n");
@@ -90,38 +90,26 @@ int Put_stack(SqStack *S,Elemtype *out_x)
 	return TRUE;
 }//输出栈顶元素
 
-int Judge_stack(SqStack *S,Elemtype *text) 
+void Judge_stack(SqStack *S,Elemtype *text) 
 {
-	Elemtype *opp = (Elemtype*)malloc(10 * sizeof(Elemtype));
-	Elemtype *i = (Elemtype *)malloc(sizeof(Elemtype));
-	Elemtype *temp = text;
-	Elemtype *p = opp;
-	while (*temp != '\0') 
+	int i, j;
+	Elemtype temp, *x, index;
+	for (i = 0; text[i] != '@'; i++) 
 	{
-		Push_stack(S, *temp);
-		temp++;
+		index = text[i];
+		Push_stack(S, index);
 	}
-	while (1) {
-		if (Pop_stack(S, i) == ERROR)
+	for (j = i-1; j >= 0; j--)
+	{
+		temp = Pop_stack(S,x);
+		if (text[j] != temp)
 		{
-			*opp = '\0';
+			printf("不是回文\n");
 			break;
 		}
-		*opp = *i;
-		opp++;
 	}
-	temp = text;
-	p = opp;
-	while (*temp != '\0') 
-	{
-		if (*opp != *temp) 
-		{
-			return ERROR;
-		}
-		opp++;
-		temp++;
-	}
-	return TRUE;
+	if (j == -1)
+		printf("是回文");
 }//判断输入是否为回文
 
 void next() 
@@ -160,7 +148,8 @@ int main() {
 			next();
 			break;
 		case 4:
-			if (!Put_stack(S, &out_x)) {
+			if (!Put_stack(S, &out_x)) 
+			{
 				printf("栈顶元素为：%d\n", out_x);
 			}
 			next();
@@ -168,20 +157,17 @@ int main() {
 		case 5:
 			Elemtype text[STACKINCREMENT];
 			printf("请输入文字...\n");
-			scanf("%s",text);
-			if (Judge_stack(S, text)==1)
-			{
-				printf("这是回文...\n");
-			}
-			else 
-			{
-				printf("这不是回文...\n");
-			}
+			getchar();
+			gets_s(text);//仅读取99个字符，可更改大小
+			Judge_stack(S, text);
+			next();
+			break;
 		case 99:
 			free(S);
 			return 0;
 		default:
 			printf("没有这个操作，请重新输入.\n");
+			break;
 		}
 	}
 	return 0;
